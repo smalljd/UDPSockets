@@ -9,15 +9,14 @@
 import Foundation
 
 class UDPServer {
-    /// create a socket
+    let addressString: String
+    let bufferLength = 4096
+    var clientSocketAddress: sockaddr_in?
+    let portDescription: Int // Used for display purposes
+    var readBuffer = [UInt8](repeating: 0, count: 4096)
+    var readSource: DispatchSourceRead?
     var socketDescriptor = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP)
     var socketAddress: sockaddr_in
-    let addressString: String
-    let portDescription: Int
-
-    let bufferLength = 4096
-    var responseBuffer = [UInt8](repeating: 0, count: 4096)
-    var readSource: DispatchSourceRead?
 
     init(address: String, port: UInt16) {
         portDescription = Int(port)
@@ -43,7 +42,6 @@ class UDPServer {
     }
 
     // MARK: Bind the socket
-    /// name the socket/bind
     func bindSocket() -> Int32 {
         /// Bind the socket to the address
         return withUnsafePointer(to: &socketAddress) { socketAddressPointer -> Int32 in
@@ -54,9 +52,8 @@ class UDPServer {
     }
 
     // MARK: Listen for messages
-    /// configure the read source
     func startListening(onQueue dispatchQueue: DispatchQueue) {
-        print("Listening on: \(addressString):\(portDescription)")
+        print("Server listening on: \(addressString):\(portDescription)")
         readSource = DispatchSource.makeReadSource(fileDescriptor: socketDescriptor,
                                                    queue: dispatchQueue)
 
@@ -76,12 +73,19 @@ class UDPServer {
     }
 
     func eventHandler() -> DispatchSource.DispatchSourceHandler? {
-        return {
-            print("Event handler triggered")
-            var socketStorageAddress = sockaddr_storage()
-            var socketAddressLength = socklen_t(MemoryLayout<sockaddr_storage>.size)
+        return { [weak self] in
+            guard let `self` = self else {
+                return
+            }
 
-            let bytesRead = withUnsafeMutablePointer(to: &socketStorageAddress) { storageAddress -> Int in
+            print("Event handler triggered")
+            var socketAddressLength = socklen_t(MemoryLayout<sockaddr>.size)
+
+            if self.clientSocketAddress == nil {
+                self.clientSocketAddress = sockaddr_in()
+            }
+
+            let bytesRead = withUnsafeMutablePointer(to: &self.clientSocketAddress) { storageAddress -> Int in
                 storageAddress.withMemoryRebound(to: sockaddr.self, capacity: 1) { reBoundSocketAddress -> Int in
                     guard self.socketDescriptor > 0 else {
                         print("Couldn't read info: : \(String(cString: strerror(errno)))")
@@ -89,19 +93,34 @@ class UDPServer {
                     }
 
                     return recvfrom(self.socketDescriptor,
-                                    &self.responseBuffer,
-                                    self.responseBuffer.count,
+                                    &self.readBuffer,
+                                    self.readBuffer.count,
                                     0,
                                     UnsafeMutablePointer<sockaddr>(reBoundSocketAddress),
                                     &socketAddressLength)
                 }
             }
 
-            let dataRead = self.responseBuffer[0 ..< bytesRead]
+            let dataRead = self.readBuffer[0 ..< bytesRead]
             print("read \(bytesRead) bytes: \(dataRead)")
             if let dataString = String(bytes: dataRead, encoding: .utf8) {
                 print("The message was: \(dataString)")
+                // Reply to client with the same message.
+                self.sendMessageToClient(message: dataString)
             }
+        }
+    }
+
+    func sendMessageToClient(message: String) {
+        withUnsafePointer(to: &clientSocketAddress) { clientAddressPointer in
+            var clientAddress = UnsafeRawPointer(clientAddressPointer).assumingMemoryBound(to: sockaddr.self).pointee
+            let replyConfirmation = sendto(self.socketDescriptor,
+                   readBuffer,
+                   bufferLength,
+                   0,
+                   &clientAddress,
+                   socklen_t(MemoryLayout<sockaddr>.size))
+            print("Reply confirmation on server: \(replyConfirmation)")
         }
     }
 
