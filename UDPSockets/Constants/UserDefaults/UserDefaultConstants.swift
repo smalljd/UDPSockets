@@ -7,3 +7,8 @@
 //
 
 import Foundation
+
+struct UserDefaultsConstants {
+    static let hostName = "hostNameKey"
+    static let port = "portNameKey"
+}
