@@ -8,10 +8,18 @@
 
 import Foundation
 
+protocol UDPClientDelegate {
+    func didReceiveMessage(_ message: String)
+}
+
 class UDPClient {
-    /// 1: create a socket
     var socketDescriptor = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP)
     var socketAddress: sockaddr_in?
+    var delegate: UDPClientDelegate?
+
+    var readSource: DispatchSourceRead?
+    let bufferLength = 4096
+    var responseBuffer = [UInt8](repeating: 0, count: 4096)
 
     init() {
         guard socketDescriptor > 0 else {
@@ -19,6 +27,8 @@ class UDPClient {
             socketDescriptor = -1
             return
         }
+
+        configureReadSource()
     }
 
     deinit {
@@ -70,6 +80,58 @@ class UDPClient {
             }
 
             return sent
+        }
+    }
+
+    // MARK: Read messages from server
+    func configureReadSource() {
+        readSource = DispatchSource.makeReadSource(fileDescriptor: socketDescriptor,
+                                                   queue: DispatchQueue.main)
+        readSource?.setEventHandler(handler: readEventHandler())
+        readSource?.setCancelHandler(handler: readCancelHandler())
+
+        readSource?.resume()
+    }
+
+    func readEventHandler() -> DispatchSource.DispatchSourceHandler? {
+        return { [weak self] in
+            guard let `self` = self else {
+                return
+            }
+
+            print("Client event handler triggered")
+            var socketStorageAddress = sockaddr_storage()
+            var socketAddressLength = socklen_t(MemoryLayout<sockaddr_storage>.size)
+
+            let bytesRead = withUnsafeMutablePointer(to: &socketStorageAddress) { storageAddress -> Int in
+                storageAddress.withMemoryRebound(to: sockaddr.self, capacity: 1) { reBoundSocketAddress -> Int in
+                    guard self.socketDescriptor > 0 else {
+                        print("Couldn't read info: : \(String(cString: strerror(errno)))")
+                        return -1
+                    }
+
+                    return recvfrom(self.socketDescriptor,
+                                    &self.responseBuffer,
+                                    self.responseBuffer.count,
+                                    0,
+                                    UnsafeMutablePointer<sockaddr>(reBoundSocketAddress),
+                                    &socketAddressLength)
+                }
+            }
+
+            let dataRead = self.responseBuffer[0 ..< bytesRead]
+            print("Client read \(bytesRead) bytes: \(dataRead)")
+            if let dataString = String(bytes: dataRead, encoding: .utf8) {
+                self.delegate?.didReceiveMessage(dataString)
+            }
+        }
+    }
+
+    func readCancelHandler() -> DispatchSource.DispatchSourceHandler? {
+        return {
+            let errmsg = String(cString: strerror(errno))
+            print("Cancel handler \(errmsg)")
+            _ = self.closeSocket()
         }
     }
 
