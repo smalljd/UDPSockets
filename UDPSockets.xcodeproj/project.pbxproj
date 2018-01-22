@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		1F913CA7201533CD00EABE2A /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F913CA6201533CD00EABE2A /* AppDelegate.swift */; };
-		1F913CA9201533CD00EABE2A /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F913CA8201533CD00EABE2A /* ViewController.swift */; };
+		1F913CA9201533CD00EABE2A /* ChatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F913CA8201533CD00EABE2A /* ChatViewController.swift */; };
 		1F913CAB201533CD00EABE2A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1F913CAA201533CD00EABE2A /* Assets.xcassets */; };
 		1F913CAE201533CD00EABE2A /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1F913CAC201533CD00EABE2A /* Main.storyboard */; };
 		1F913CBA201533CD00EABE2A /* UDPSocketsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F913CB9201533CD00EABE2A /* UDPSocketsTests.swift */; };
@@ -16,6 +16,7 @@
 		1F913CD62015340900EABE2A /* ByteOrder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F913CD52015340900EABE2A /* ByteOrder.swift */; };
 		1F913CD82015345100EABE2A /* UDPServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F913CD72015345100EABE2A /* UDPServer.swift */; };
 		1F913CDA2015346400EABE2A /* UDPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F913CD92015346400EABE2A /* UDPClient.swift */; };
+		1F913CDE20155F4F00EABE2A /* UserDefaultConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F913CDD20155F4F00EABE2A /* UserDefaultConstants.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -38,7 +39,7 @@
 /* Begin PBXFileReference section */
 		1F913CA3201533CD00EABE2A /* UDPSockets.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = UDPSockets.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1F913CA6201533CD00EABE2A /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		1F913CA8201533CD00EABE2A /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		1F913CA8201533CD00EABE2A /* ChatViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewController.swift; sourceTree = "<group>"; };
 		1F913CAA201533CD00EABE2A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1F913CAD201533CD00EABE2A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		1F913CAF201533CD00EABE2A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -52,6 +53,7 @@
 		1F913CD52015340900EABE2A /* ByteOrder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ByteOrder.swift; sourceTree = "<group>"; };
 		1F913CD72015345100EABE2A /* UDPServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UDPServer.swift; sourceTree = "<group>"; };
 		1F913CD92015346400EABE2A /* UDPClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UDPClient.swift; sourceTree = "<group>"; };
+		1F913CDD20155F4F00EABE2A /* UserDefaultConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultConstants.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -102,11 +104,12 @@
 		1F913CA5201533CD00EABE2A /* UDPSockets */ = {
 			isa = PBXGroup;
 			children = (
+				1F913CDB20155F2A00EABE2A /* Constants */,
 				1F913CD4201533E600EABE2A /* C_Helpers */,
 				1F913CD3201533DE00EABE2A /* Server */,
 				1F913CD2201533D600EABE2A /* Client */,
 				1F913CA6201533CD00EABE2A /* AppDelegate.swift */,
-				1F913CA8201533CD00EABE2A /* ViewController.swift */,
+				1F913CA8201533CD00EABE2A /* ChatViewController.swift */,
 				1F913CAA201533CD00EABE2A /* Assets.xcassets */,
 				1F913CAC201533CD00EABE2A /* Main.storyboard */,
 				1F913CAF201533CD00EABE2A /* Info.plist */,
@@ -155,6 +158,22 @@
 				1F913CD52015340900EABE2A /* ByteOrder.swift */,
 			);
 			path = C_Helpers;
+			sourceTree = "<group>";
+		};
+		1F913CDB20155F2A00EABE2A /* Constants */ = {
+			isa = PBXGroup;
+			children = (
+				1F913CDC20155F3600EABE2A /* UserDefaults */,
+			);
+			path = Constants;
+			sourceTree = "<group>";
+		};
+		1F913CDC20155F3600EABE2A /* UserDefaults */ = {
+			isa = PBXGroup;
+			children = (
+				1F913CDD20155F4F00EABE2A /* UserDefaultConstants.swift */,
+			);
+			path = UserDefaults;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -226,6 +245,11 @@
 					1F913CA2201533CD00EABE2A = {
 						CreatedOnToolsVersion = 9.2;
 						ProvisioningStyle = Automatic;
+						SystemCapabilities = {
+							com.apple.Sandbox = {
+								enabled = 1;
+							};
+						};
 					};
 					1F913CB4201533CD00EABE2A = {
 						CreatedOnToolsVersion = 9.2;
@@ -292,8 +316,9 @@
 			files = (
 				1F913CDA2015346400EABE2A /* UDPClient.swift in Sources */,
 				1F913CD62015340900EABE2A /* ByteOrder.swift in Sources */,
-				1F913CA9201533CD00EABE2A /* ViewController.swift in Sources */,
+				1F913CA9201533CD00EABE2A /* ChatViewController.swift in Sources */,
 				1F913CD82015345100EABE2A /* UDPServer.swift in Sources */,
+				1F913CDE20155F4F00EABE2A /* UserDefaultConstants.swift in Sources */,
 				1F913CA7201533CD00EABE2A /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
