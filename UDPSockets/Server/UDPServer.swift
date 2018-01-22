@@ -22,6 +22,7 @@ class UDPServer {
         portDescription = Int(port)
         addressString = address
         socketAddress = UDPServer.socketAddress(port: port)
+        clearResponseBuffer()
 
         guard socketDescriptor >= 0 else {
             let errmsg = String(cString: strerror(errno))
@@ -112,6 +113,10 @@ class UDPServer {
     }
 
     func sendMessageToClient(message: String) {
+        defer {
+            clearResponseBuffer()
+        }
+
         withUnsafePointer(to: &clientSocketAddress) { clientAddressPointer in
             var clientAddress = UnsafeRawPointer(clientAddressPointer).assumingMemoryBound(to: sockaddr.self).pointee
             let replyConfirmation = sendto(self.socketDescriptor,
@@ -120,8 +125,16 @@ class UDPServer {
                    0,
                    &clientAddress,
                    socklen_t(MemoryLayout<sockaddr>.size))
-            print("Reply confirmation on server: \(replyConfirmation)")
+
+            guard replyConfirmation >= 0 else {
+                print("Error sending message to client: \(strerror(errno))")
+                return
+            }
         }
+    }
+
+    func clearResponseBuffer() {
+        readBuffer = [UInt8](repeating: 0, count: 4096)
     }
 
     // MARK: Close the socket
